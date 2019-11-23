@@ -8,6 +8,7 @@ This plugin enables authentication against a generic OpenID Connect server in YO
 - Respects YOURLS hard-coded logins
 - Can link OpenID Connect accounts to existing YOURLS accounts
 - Sets user to `sub`, sets display name to `preferred_username`
+- Single Sign Out: signing out of YOURLS signs off OIDC server.
 
 ### Requirements
 - YOURLS 7.4.0
