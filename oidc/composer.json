@@ -1,0 +1,6 @@
+{
+    "require": {
+        "jumbojett/openid-connect-php": "dev-master"
+    },
+	"minimum-stability": "dev"
+}
