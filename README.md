@@ -5,7 +5,7 @@ This plugin enables authentication against a generic OpenID Connect server in YO
 
 ### Features
 - Respects YOURLS auth flow
-- Respects YOURLS hard-coded logins
+- Respects YOURLS hard-coded logins, if desired
 - Can link OpenID Connect accounts to existing YOURLS accounts
 - Sets user to `sub`, sets display name to `preferred_username`
 - Single Sign Out: signing out of YOURLS signs off OIDC server.
@@ -21,8 +21,9 @@ This plugin enables authentication against a generic OpenID Connect server in YO
 1. Download this repo and extract the `oidc` folder into `YOURLS/user/plugins/`
 2. `cd` to the directory you just created
 3. Run `composer install` in that directory to fetch the OIDC library
-4. Configure the plugin (see below)
-5. Enable in Admin
+4. Define OIDC server parameters (see below)
+5. Optionally map OIDC `user_id` hash to local user names. To use YOURLS native auth as backup, map to existing YOURLS users (ie, fallback admin option)
+6. Enable in Admin
 
 Configuration
 -------------
@@ -32,7 +33,7 @@ Config: `user/config.php` file.
 define( 'OIDC_BASE_URL', 'https://keycloak.example.com/auth/realms/master/' );
 define( 'OIDC_CLIENT_NAME', 'YOURLS' );
 define( 'OIDC_CLIENT_SECRET', 'YOUR-SUPER-SECRET-HASH' );
-// identity mapping (optional)
+// identity mapping ( optional )
 $oidc_profiles = array( 
 	'YOURLS_UNAME' => 'sub attribute from OIDC provider',
 );
@@ -40,7 +41,7 @@ $oidc_profiles = array(
 ### In Development
 - Tight integration with AuthMgrPlus
 	- Group and attribute assignment
-- User panel in admin for linking accounts with the push of a button
+- User panel in admin for linking to existing accounts with the push of a button
 
 ### Support Dev
 All of my published code is developed and maintained in spare time, if you would like to support development of this, or any of my published code, I have set up a Liberpay account for just this purpose. Thank you.

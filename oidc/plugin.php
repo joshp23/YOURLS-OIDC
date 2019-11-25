@@ -3,7 +3,7 @@
 Plugin Name: oidc
 Plugin URI: https://github.com/joshp23/YOURLS-OIDC
 Description: Enables OpenID Connect user authentication
-Version: 0.1.0
+Version: 0.2.0
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
@@ -30,39 +30,22 @@ function oidc_auth($valid) {
 		if ($user_id) {	
 			$valid = true;
 			$id = $user_id;
-			$display_name = $pref_name;
-			$valid = true;
 			global $yourls_user_passwords;
 			global $oidc_profiles;
-			foreach( $oidc_profiles as $linked_user => $linked_hash) {
-				if( $user_id == $linked_hash ) {
-					foreach( $yourls_user_passwords as $yourls_user => $password) {
-						if( $linked_user == $yourls_user ) {
-							$id = $display_name = $yourls_user;
-							break;
-						}
-					}
-				}
+			foreach( $oidc_profiles as $local_user => $local_hash) {
+				if( $user_id == $local_hash )
+					$id = $local_user;
 			}
+			$valid = true;
 			yourls_set_user($id);
-			setcookie('yourls_'.yourls_salt('OIDC_DISPLAY_NAME') ,$display_name );
 		}
 	}
 	// return appropriate validation status
 	return $valid;
 }
-yourls_add_filter( 'logout_link', 'oidc_logout_link' );
-function oidc_logout_link( $data ) {
-	if( isset($_COOKIE['yourls_'.yourls_salt('OIDC_DISPLAY_NAME')]) ) {
-		$name = $_COOKIE['yourls_'.yourls_salt('OIDC_DISPLAY_NAME')];
-		$data = sprintf( yourls__('Hello <strong>%s</strong>'), $name ) . ' (<a href="' . yourls_admin_url() . '?action=logout" title="' . yourls_esc_attr__( 'Logout' ) . '">' . yourls__( 'Logout' ) . '</a>)' ;
-	}
-	return $data;
-}
 
 yourls_add_action( 'logout', 'oidc_logout' );
 function oidc_logout() {
-	setcookie('yourls_'.yourls_salt('OIDC_DISPLAY_NAME') ,'', time() - 3600);
 	yourls_store_cookie( null );
 	global $oidc;
 	$oidc->signOut( null, YOURLS_SITE );
