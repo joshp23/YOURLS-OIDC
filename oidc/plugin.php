@@ -31,6 +31,7 @@ function oidc_auth( $valid ) {
 				if( $id == $hash ) {
 					yourls_set_user($user);
 					$valid = true;
+					header('Refresh:0; url=' . YOURLS_SITE . '/admin');
 				}
 			}
 		}
@@ -42,7 +43,7 @@ yourls_add_action( 'logout', 'oidc_logout' );
 function oidc_logout() {
 	yourls_store_cookie( null );
 	global $oidc;
-	$oidc->signOut( null, YOURLS_SITE );
+	$oidc->signOut( null, YOURLS_SITE . '/admin');
 }
 
 // Largely unchanged: only checking auth against w/ cookies.
