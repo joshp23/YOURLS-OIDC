@@ -13,7 +13,7 @@ This plugin enables authentication against a generic OpenID Connect server in YO
 ### Requirements
 - YOURLS 7.4.0
 - The [jumbojett/OpenID-Connect-PHP](https://github.com/jumbojett/OpenID-Connect-PHP) library
-- `composer`, `php-curl` and `php-json`
+- `composer`, `php-curl`, `php-xml`, and `php-json`
 - A working OpenID Connect servier (Tested against Keycloak)
 - If installed, remove [dgw/yourls-dont-track-admins](https://github.com/dgw/yourls-dont-track-admins), or replace it with [joshp23/YOURLS-No-Tracking-Admins](https://github.com/joshp23/YOURLS-No-Tracking-Admins) for compatability.
 
@@ -22,7 +22,7 @@ This plugin enables authentication against a generic OpenID Connect server in YO
 2. `cd` to the directory you just created
 3. Run `composer install` in that directory to fetch the OIDC library
 4. Define OIDC server parameters (see below)
-5. Optionally map OIDC `user_id` hash to local user names. To use YOURLS native auth as backup, map to existing YOURLS users (ie, fallback admin option)
+5. configure OIDC, see below.
 6. Enable in Admin
 
 Configuration
@@ -33,10 +33,12 @@ Config: `user/config.php` file.
 define( 'OIDC_BASE_URL', 'https://keycloak.example.com/auth/realms/master/' );
 define( 'OIDC_CLIENT_NAME', 'YOURLS' );
 define( 'OIDC_CLIENT_SECRET', 'YOUR-SUPER-SECRET-HASH' );
-// identity mapping ( optional )
+// Option 1: link OIDC users to local YOURLS users
 $oidc_profiles = array( 
 	'YOURLS_UNAME' => 'sub attribute from OIDC provider',
 );
+// Option 2, all users on OIDC platform have YOURLS accounts. uses 'preferred_username' attribute
+define( 'OIDC_BYPASS_YOURLS_AUTH', true );
 ```
 ### In Development
 - Tight integration with AuthMgrPlus

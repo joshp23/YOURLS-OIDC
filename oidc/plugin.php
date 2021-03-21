@@ -26,11 +26,17 @@ function oidc_auth( $valid ) {
 		$oidc->authenticate();
 		$id = $oidc->requestUserInfo('sub');
 		if ( $id ) {
-			global $oidc_profiles;
-			foreach( $oidc_profiles as $user => $hash) {
-				if( $id == $hash ) {
-					yourls_set_user($user);
-					$valid = true;
+			if( OIDC_BYPASS_YOURLS_AUTH ) {
+				$user = $oidc->requestUserInfo('preferred_username');
+				yourls_set_user($user);
+				$valid = true;
+			} else {
+				global $oidc_profiles;
+				foreach( $oidc_profiles as $user => $hash) {
+					if( $id == $hash ) {
+						yourls_set_user($user);
+						$valid = true;
+					}
 				}
 			}
 		}
