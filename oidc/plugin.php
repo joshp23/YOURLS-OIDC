@@ -3,13 +3,15 @@
 Plugin Name: oidc
 Plugin URI: https://github.com/joshp23/YOURLS-OIDC
 Description: Enables OpenID Connect user authentication
-Version: 0.2.1
+Version: 0.3.1
 Author: Josh Panter
 Author URI: https://unfettered.net
 */
 // No direct call
 if( !defined( 'YOURLS_ABSPATH' ) ) die();
-
+if( !defined( 'OIDC_BYPASS_YOURLS_AUTH' ) ) 
+	define( 'OIDC_BYPASS_YOURLS_AUTH', false );
+	
 require_once __DIR__.'/vendor/autoload.php';
 global $oidc;
 $oidc = new Jumbojett\OpenIDConnectClient(
@@ -24,13 +26,15 @@ function oidc_auth( $valid ) {
 	if ( !yourls_is_API() && !$valid ) {
 		global $oidc;
 		$oidc->authenticate();
-		$id = $oidc->requestUserInfo('sub');
-		if ( $id ) {
-			if( OIDC_BYPASS_YOURLS_AUTH ) {
-				$user = $oidc->requestUserInfo('preferred_username');
+		if ( OIDC_BYPASS_YOURLS_AUTH ) {
+			$user = $oidc->requestUserInfo('preferred_username');
+			if ( $user ) {
 				yourls_set_user($user);
 				$valid = true;
-			} else {
+			}
+		} else {
+			$id = $oidc->requestUserInfo('sub');
+			if ( $id ) {
 				global $oidc_profiles;
 				foreach( $oidc_profiles as $user => $hash) {
 					if( $id == $hash ) {
