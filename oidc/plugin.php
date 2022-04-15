@@ -19,6 +19,7 @@ $oidc = new Jumbojett\OpenIDConnectClient(
 			OIDC_CLIENT_NAME,
 			OIDC_CLIENT_SECRET
 		);
+$oidc->addScope('profile');
 
 yourls_add_filter( 'is_valid_user', 'oidc_auth' );
 function oidc_auth( $valid ) {
