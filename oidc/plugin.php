@@ -20,6 +20,8 @@ $oidc = new Jumbojett\OpenIDConnectClient(
 			OIDC_CLIENT_SECRET
 		);
 
+if( defined( 'OIDC_REDIRECT_URL' ) ) $oidc->setRedirectUrl(OIDC_REDIRECT_URL);
+
 yourls_add_filter( 'is_valid_user', 'oidc_auth' );
 function oidc_auth( $valid ) {
 	// check for correct context
