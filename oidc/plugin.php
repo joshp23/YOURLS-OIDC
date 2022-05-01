@@ -4,8 +4,8 @@ Plugin Name: oidc
 Plugin URI: https://github.com/joshp23/YOURLS-OIDC
 Description: Enables OpenID Connect user authentication
 Version: 0.3.1
-Author: Josh Panter
-Author URI: https://unfettered.net
+Author: Josh Panter, Francesco Servida
+Author URI: https://unfettered.net, https://francescoservida.ch
 */
 // No direct call
 if( !defined( 'YOURLS_ABSPATH' ) ) die();
@@ -20,9 +20,19 @@ $oidc = new Jumbojett\OpenIDConnectClient(
 			OIDC_CLIENT_SECRET
 		);
 
+if( defined( 'OIDC_REDIRECT_URL' ) ) $oidc->setRedirectUrl(OIDC_REDIRECT_URL);
+
 yourls_add_filter( 'is_valid_user', 'oidc_auth' );
 function oidc_auth( $valid ) {
 	// check for correct context
+	if ( !yourls_is_API() && isset($_COOKIE[yourls_cookie_name()]) ) {
+                if ( isset($_COOKIE['OIDC_username']) ) {
+                        if ( yourls_cookie_value($_COOKIE['OIDC_username']) === $_COOKIE[yourls_cookie_name()] ){
+                                yourls_set_user($_COOKIE['OIDC_username']);
+                                $valid = true;
+                        }
+                }
+        }
 	if ( !yourls_is_API() && !$valid ) {
 		global $oidc;
 		$oidc->authenticate();
@@ -30,6 +40,7 @@ function oidc_auth( $valid ) {
 			$user = $oidc->requestUserInfo('preferred_username');
 			if ( $user ) {
 				yourls_set_user($user);
+				oidc_cookie_login($user);
 				$valid = true;
 			}
 		} else {
@@ -48,11 +59,29 @@ function oidc_auth( $valid ) {
 	return $valid;
 }
 
+function oidc_cookie_login($user){
+        $time = time() + yourls_get_cookie_life();
+        $path     = yourls_apply_filter( 'setcookie_path',     '/' );
+        $domain   = yourls_apply_filter( 'setcookie_domain',   parse_url( yourls_get_yourls_site(), PHP_URL_HOST ) );
+        $secure   = yourls_apply_filter( 'setcookie_secure',   yourls_is_ssl() );
+        $httponly = yourls_apply_filter( 'setcookie_httponly', true );
+        setcookie('OIDC_username', $user, $time, $path, $domain, $secure, $httponly);
+}
+
 yourls_add_action( 'logout', 'oidc_logout' );
 function oidc_logout() {
 	yourls_store_cookie( null );
+	oidc_cookie_logout();
 	global $oidc;
 	$oidc->signOut( null, YOURLS_SITE );
+}
+
+function oidc_cookie_logout(){
+        $path     = yourls_apply_filter( 'setcookie_path',     '/' );
+        $domain   = yourls_apply_filter( 'setcookie_domain',   parse_url( yourls_get_yourls_site(), PHP_URL_HOST ) );
+        $secure   = yourls_apply_filter( 'setcookie_secure',   yourls_is_ssl() );
+        $httponly = yourls_apply_filter( 'setcookie_httponly', true );
+        setcookie("OIDC_username", "", time() - 3600, $path, $domain, $secure, $httponly);
 }
 
 // Largely unchanged: only checking auth against w/ cookies.

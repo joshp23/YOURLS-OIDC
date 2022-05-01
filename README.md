@@ -39,6 +39,9 @@ $oidc_profiles = array(
 );
 // Option 2, all users on OIDC platform have YOURLS accounts. uses 'preferred_username' attribute
 define( 'OIDC_BYPASS_YOURLS_AUTH', true );
+// If behind Reverse Proxies YOURLS URL might be incorrectly detected for redirects; manually set it here to force redirects to the right page. 
+// Note it points to /admin/ and not the root.
+define( 'OIDC_REDIRECT_URL', 'https://yourls.example.com/admin/' );
 ```
 ### In Development
 - Tight integration with AuthMgrPlus
